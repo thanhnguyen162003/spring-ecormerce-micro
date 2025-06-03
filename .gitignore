@@ -1,9 +1,2 @@
 /.idea/
 .env
-/.vs/
-/.cursor/
-.cursorrules
-.cursorignore
-.cursorignorerules
-./vscode/
-application-dev.properties

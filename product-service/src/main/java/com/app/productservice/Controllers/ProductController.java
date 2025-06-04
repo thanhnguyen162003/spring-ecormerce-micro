@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/products")
 @Tag(name = "Product Controller", description = "APIs for managing products")
@@ -52,7 +54,7 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(
             @Parameter(description = "ID of the product to retrieve", required = true)
-            @PathVariable Long id) {
+            @PathVariable UUID id) {
         Product product = productService.getProductById(id);
         if (product != null) {
             return ResponseEntity.ok(product);
@@ -88,7 +90,7 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(
             @Parameter(description = "ID of the product to update", required = true)
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @Parameter(description = "Updated product object", required = true)
             @RequestBody Product product) {
         Product updatedProduct = productService.updateProduct(id, product);
@@ -100,13 +102,13 @@ public class ProductController {
     
     @Operation(summary = "Delete a product", description = "Soft deletes a product by ID")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Product deleted successfully"),
+        @ApiResponse(responseCode = "200", description = "Product deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Product not found")
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(
             @Parameter(description = "ID of the product to delete", required = true)
-            @PathVariable Long id) {
+            @PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }

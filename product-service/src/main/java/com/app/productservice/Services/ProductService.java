@@ -32,7 +32,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Product getProductById(Long id) {
+    public Product getProductById(UUID id) {
         return productRepository.findProductById(id);
     }
     

@@ -14,11 +14,11 @@ public interface IProductService {
     
     // Read
     List<Product> getAllProducts();
-    Product getProductById(Long id);
+    Product getProductById(UUID id);
     Page<Product> getAllProductsWithPagination(Pageable pageable);
     
     // Update
-    Product updateProduct(Long id, Product product);
+    Product updateProduct(UUID id, Product product);
     
     // Delete
     ResponseModel deleteProduct(UUID id);

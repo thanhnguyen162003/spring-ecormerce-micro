@@ -8,8 +8,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, UUID> {
     
     // Native query for pagination
     @Query(value = "SELECT * FROM products ORDER BY created_at DESC", 
@@ -19,5 +21,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     // Native query to find product by ID
     @Query(value = "SELECT * FROM products WHERE id = :id", nativeQuery = true)
-    Product findProductById(@Param("id") Long id);
+    Product findProductById(@Param("id") UUID id);
 } 

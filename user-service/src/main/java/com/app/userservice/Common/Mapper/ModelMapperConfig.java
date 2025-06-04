@@ -45,7 +45,7 @@ public class ModelMapperConfig {
                 // Skip mapping fields that are not in the request
                 skip().setId(null);
                 skip().setRoles(null);
-                skip().setActive(false);
+                skip().setActive(null);
                 skip().setCreatedAt(null);
                 skip().setUpdatedAt(null);
             }

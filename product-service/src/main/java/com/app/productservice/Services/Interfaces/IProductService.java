@@ -1,25 +1,27 @@
 package com.app.productservice.Services.Interfaces;
 
 import com.app.productservice.Common.CustomModels.ResponseModel;
+import com.app.productservice.Models.Response.ProductResponse;
 import com.app.productservice.Entities.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public interface IProductService {
     // Create
-    Product createProduct(Product product);
+    ProductResponse createProduct(Product product);
     
     // Read
-    List<Product> getAllProducts();
-    Product getProductById(UUID id);
-    Page<Product> getAllProductsWithPagination(Pageable pageable);
+    List<ProductResponse> getAllProducts();
+    ProductResponse getProductById(UUID id);
+    Page<ProductResponse> getAllProductsWithPagination(Pageable pageable);
     
     // Update
-    Product updateProduct(UUID id, Product product);
+    CompletableFuture<ProductResponse> updateProduct(UUID id, Product product);
     
     // Delete
-    ResponseModel deleteProduct(UUID id);
+    CompletableFuture<ResponseModel> deleteProduct(UUID id);
 }

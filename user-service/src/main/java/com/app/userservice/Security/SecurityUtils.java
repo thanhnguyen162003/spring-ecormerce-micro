@@ -2,6 +2,7 @@ package com.app.userservice.Security;
 
 import com.app.userservice.Entities.User;
 import com.app.userservice.Persistence.Repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

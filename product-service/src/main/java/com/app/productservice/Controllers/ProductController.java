@@ -1,6 +1,10 @@
 package com.app.productservice.Controllers;
 
+import com.app.productservice.Common.CustomModels.ResponseModel;
+import com.app.productservice.Common.Mapper.ProductMapper;
 import com.app.productservice.Entities.Product;
+import com.app.productservice.Models.Request.ProductRequest;
+import com.app.productservice.Models.Response.ProductResponse;
 import com.app.productservice.Services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/products")
@@ -25,37 +30,40 @@ import java.util.UUID;
 public class ProductController {
     
     private final ProductService productService;
+    private final ProductMapper productMapper;
     
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductMapper productMapper) {
         this.productService = productService;
+        this.productMapper = productMapper;
     }
     
     @Operation(summary = "Create a new product", description = "Creates a new product in the system")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Product created successfully",
-                    content = @Content(schema = @Schema(implementation = Product.class))),
+                    content = @Content(schema = @Schema(implementation = ProductResponse.class))),
         @ApiResponse(responseCode = "400", description = "Invalid input")
     })
     @PostMapping
-    public ResponseEntity<Product> createProduct(
+    public ResponseEntity<ProductResponse> createProduct(
             @Parameter(description = "Product object to create", required = true)
-            @RequestBody Product product) {
-        Product createdProduct = productService.createProduct(product);
+            @RequestBody ProductRequest productRequest) {
+        Product product = productMapper.toEntity(productRequest);
+        ProductResponse createdProduct = productService.createProduct(product);
         return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
     }
     
     @Operation(summary = "Get product by ID", description = "Retrieves a product by its ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Product found",
-                    content = @Content(schema = @Schema(implementation = Product.class))),
+                    content = @Content(schema = @Schema(implementation = ProductResponse.class))),
         @ApiResponse(responseCode = "404", description = "Product not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(
+    public ResponseEntity<ProductResponse> getProductById(
             @Parameter(description = "ID of the product to retrieve", required = true)
             @PathVariable UUID id) {
-        Product product = productService.getProductById(id);
+        ProductResponse product = productService.getProductById(id);
         if (product != null) {
             return ResponseEntity.ok(product);
         }
@@ -68,36 +76,39 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = Page.class)))
     })
     @GetMapping
-    public ResponseEntity<Page<Product>> getAllProducts(
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
             @Parameter(description = "Page number (0-based)")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Number of items per page")
             @RequestParam(defaultValue = "10") int size,
             @Parameter(description = "Field to sort by")
-            @RequestParam(defaultValue = "createdAt") String sortBy) {
+            @RequestParam(defaultValue = "created_at") String sortBy) {
         
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortBy).descending());
-        Page<Product> products = productService.getAllProductsWithPagination(pageRequest);
+        Page<ProductResponse> products = productService.getAllProductsWithPagination(pageRequest);
         return ResponseEntity.ok(products);
     }
     
     @Operation(summary = "Update a product", description = "Updates an existing product by ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Product updated successfully",
-                    content = @Content(schema = @Schema(implementation = Product.class))),
+                    content = @Content(schema = @Schema(implementation = ProductResponse.class))),
         @ApiResponse(responseCode = "404", description = "Product not found")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(
+    public CompletableFuture<ResponseEntity<ProductResponse>> updateProduct(
             @Parameter(description = "ID of the product to update", required = true)
             @PathVariable UUID id,
             @Parameter(description = "Updated product object", required = true)
-            @RequestBody Product product) {
-        Product updatedProduct = productService.updateProduct(id, product);
-        if (updatedProduct != null) {
-            return ResponseEntity.ok(updatedProduct);
-        }
-        return ResponseEntity.notFound().build();
+            @RequestBody ProductRequest productRequest) {
+        Product product = productMapper.toEntity(productRequest);
+        return productService.updateProduct(id, product)
+                .thenApply(updatedProduct -> {
+                    if (updatedProduct != null) {
+                        return ResponseEntity.ok(updatedProduct);
+                    }
+                    return ResponseEntity.notFound().<ProductResponse>build();
+                });
     }
     
     @Operation(summary = "Delete a product", description = "Soft deletes a product by ID")
@@ -106,10 +117,10 @@ public class ProductController {
         @ApiResponse(responseCode = "404", description = "Product not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(
+    public CompletableFuture<ResponseEntity<ResponseModel>> deleteProduct(
             @Parameter(description = "ID of the product to delete", required = true)
             @PathVariable UUID id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+        return productService.deleteProduct(id)
+                .thenApply(response -> ResponseEntity.ok(response));
     }
 }

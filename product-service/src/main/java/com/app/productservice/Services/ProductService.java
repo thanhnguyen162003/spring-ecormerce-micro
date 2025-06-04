@@ -1,97 +1,63 @@
 package com.app.productservice.Services;
 
-import com.app.productservice.Common.CustomModels.ResponseModel;
-import com.app.productservice.Common.Mapper.ProductMapper;
-import com.app.productservice.Models.Response.ProductResponse;
 import com.app.productservice.Persistence.Interfaces.IProductRepository;
 import com.app.productservice.Services.Interfaces.IProductService;
 import com.app.productservice.Entities.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Isolation;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.concurrent.CompletableFuture;
 
 @Service
+@Transactional
 public class ProductService implements IProductService {
 
     private final IProductRepository productRepository;
-    private final ProductMapper productMapper;
     
     @Autowired
-    public ProductService(IProductRepository productRepository, ProductMapper productMapper) {
+    public ProductService(IProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.productMapper = productMapper;
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(productMapper::toResponse)
-                .collect(Collectors.toList());
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public ProductResponse getProductById(UUID id) {
-        Product product = productRepository.findProductById(id);
-        return product != null ? productMapper.toResponse(product) : null;
+    public Product getProductById(Long id) {
+        return productRepository.findProductById(id);
     }
     
     @Override
-    @Transactional(readOnly = true)
-    public Page<ProductResponse> getAllProductsWithPagination(Pageable pageable) {
-        return productRepository.findAllWithPagination(pageable)
-                .map(productMapper::toResponse);
+    public Page<Product> getAllProductsWithPagination(Pageable pageable) {
+        return productRepository.findAllWithPagination(pageable);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, 
-                  isolation = Isolation.READ_COMMITTED,
-                  rollbackFor = {Exception.class})
-    public ProductResponse createProduct(Product product) {
-        Product savedProduct = productRepository.save(product);
-        return productMapper.toResponse(savedProduct);
+    public Product createProduct(Product product) {
+        return productRepository.save(product);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED,
-                  isolation = Isolation.READ_COMMITTED,
-                  rollbackFor = {Exception.class})
-    public CompletableFuture<ProductResponse> updateProduct(UUID id, Product product) {
-        return CompletableFuture.supplyAsync(() -> {
-            Product existingProduct = productRepository.findProductById(id);
-            if (existingProduct != null) {
-                product.setId(id);
-                Product updatedProduct = productRepository.save(product);
-                return productMapper.toResponse(updatedProduct);
-            }
-            return null;
-        });
+    public Product updateProduct(Long id, Product product) {
+        Product existingProduct = productRepository.findProductById(id);
+        if (existingProduct != null) {
+            product.setId(id); // Ensure the ID is set
+            return productRepository.save(product);
+        }
+        return null;
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED,
-                  isolation = Isolation.READ_COMMITTED,
-                  rollbackFor = {Exception.class})
-    public CompletableFuture<ResponseModel> deleteProduct(UUID id) {
-        return CompletableFuture.supplyAsync(() -> {
-            Product existingProduct = productRepository.findProductById(id);
-            if (existingProduct != null) {
-                existingProduct.setDeletedAt(java.time.LocalDateTime.now());
-                productRepository.save(existingProduct);
-                return new ResponseModel(HttpStatus.OK, "Delete Ok", id);
-            }
-            return new ResponseModel(HttpStatus.BAD_REQUEST, "Delete fail", null);
-        });
+    public void deleteProduct(Long id) {
+        Product existingProduct = productRepository.findProductById(id);
+        if (existingProduct != null) {
+            existingProduct.setDeletedAt(java.time.LocalDateTime.now());
+            productRepository.save(existingProduct);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.app.productservice.Persistence.Interfaces;
+package com.app.productservice.Persistence.Repository;
 
 import com.app.productservice.Entities.Product;
 import org.springframework.data.domain.Page;
@@ -9,13 +9,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
     
+    // Native query for pagination
     @Query(value = "SELECT * FROM products ORDER BY created_at DESC", 
            countQuery = "SELECT COUNT(*) FROM products",
            nativeQuery = true)
     Page<Product> findAllWithPagination(Pageable pageable);
     
+    // Native query to find product by ID
     @Query(value = "SELECT * FROM products WHERE id = :id", nativeQuery = true)
     Product findProductById(@Param("id") Long id);
 } 

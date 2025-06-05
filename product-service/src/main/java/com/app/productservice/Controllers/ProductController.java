@@ -6,6 +6,9 @@ import com.app.productservice.Entities.Product;
 import com.app.productservice.Models.Request.ProductRequest;
 import com.app.productservice.Models.Response.ProductResponse;
 import com.app.productservice.Services.ProductService;
+import com.app.productservice.Common.Pagination.PaginationHeader;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,10 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -73,10 +78,10 @@ public class ProductController {
     @Operation(summary = "Get all products with pagination", description = "Retrieves a paginated list of products")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Products retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = Page.class)))
+                    content = @Content(schema = @Schema(implementation = ProductResponse.class)))
     })
     @GetMapping
-    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+    public ResponseEntity<List<ProductResponse>> getAllProducts(
             @Parameter(description = "Page number (0-based)")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Number of items per page")
@@ -85,8 +90,26 @@ public class ProductController {
             @RequestParam(defaultValue = "created_at") String sortBy) {
         
         PageRequest pageRequest = PageRequest.of(page, size, Sort.by(sortBy).descending());
-        Page<ProductResponse> products = productService.getAllProductsWithPagination(pageRequest);
-        return ResponseEntity.ok(products);
+        Page<ProductResponse> productPage = productService.getAllProductsWithPagination(pageRequest);
+        
+        PaginationHeader paginationHeader = new PaginationHeader(
+            productPage.getNumber(),
+            productPage.getSize(),
+            productPage.getTotalPages(),
+            productPage.getTotalElements()
+        );
+        String paginationJson = "";
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            paginationJson = objectMapper.writeValueAsString(paginationHeader);
+        } catch (JsonProcessingException e) {
+            // fallback: empty json
+            paginationJson = "{}";
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Pagination", paginationJson);
+        
+        return new ResponseEntity<>(productPage.getContent(), headers, HttpStatus.OK);
     }
     
     @Operation(summary = "Update a product", description = "Updates an existing product by ID")

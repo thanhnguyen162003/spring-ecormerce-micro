@@ -13,11 +13,11 @@ import java.util.UUID;
 @Repository
 public interface IProductRepository extends JpaRepository<Product, UUID> {
     
-    @Query(value = "SELECT * FROM products ORDER BY created_at DESC", 
-           countQuery = "SELECT COUNT(*) FROM products",
+    @Query(value = "SELECT * FROM \"product-database\".products ORDER BY created_at DESC", 
+           countQuery = "SELECT COUNT(*) FROM \"product-database\".products",
            nativeQuery = true)
     Page<Product> findAllWithPagination(Pageable pageable);
     
-    @Query(value = "SELECT * FROM products WHERE id = :id", nativeQuery = true)
+    @Query(value = "SELECT * FROM \"product-database\".products WHERE id = :id", nativeQuery = true)
     Product findProductById(@Param("id") UUID id);
 } 

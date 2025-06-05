@@ -1,10 +1,10 @@
-package com.app.authservice;
+package com.app.orderservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AuthServiceApplicationTests {
+class OrderServiceApplicationTests {
 
     @Test
     void contextLoads() {

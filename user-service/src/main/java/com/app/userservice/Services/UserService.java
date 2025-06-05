@@ -1,8 +1,11 @@
 package com.app.userservice.Services;
 
+import com.app.userservice.Common.Mapper.UserMapper;
 import com.app.userservice.Entities.User;
+import com.app.userservice.Models.Response.UserResponse;
 import com.app.userservice.Persistence.Repository.UserRepository;
 import com.app.userservice.Services.Interfaces.IUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,14 +16,10 @@ import java.util.UUID;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public User createUser(User user) {

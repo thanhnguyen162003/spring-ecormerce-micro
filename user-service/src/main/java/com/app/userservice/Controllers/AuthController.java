@@ -1,8 +1,8 @@
 package com.app.userservice.Controllers;
 
-import com.app.userservice.Models.Response.ApiResponse;
 import com.app.userservice.Models.LoginRequest;
 import com.app.userservice.Models.LoginResponse;
+import com.app.userservice.Models.Response.ApiResponseModel;
 import com.app.userservice.Security.JwtTokenUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +30,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Login user", description = "Authenticates user and returns JWT token")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ApiResponseModel<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(),
@@ -42,6 +42,6 @@ public class AuthController {
         String token = jwtTokenUtil.generateToken(userDetails);
 
         LoginResponse response = new LoginResponse(token);
-        return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", response));
+        return ResponseEntity.ok(new ApiResponseModel<>(true, "Login successful", response));
     }
 } 

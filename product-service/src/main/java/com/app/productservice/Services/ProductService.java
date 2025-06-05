@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Isolation;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ProductService implements IProductService {
@@ -66,27 +67,31 @@ public class ProductService implements IProductService {
     @Transactional(propagation = Propagation.REQUIRED,
                   isolation = Isolation.READ_COMMITTED,
                   rollbackFor = {Exception.class})
-    public ProductResponse updateProduct(UUID id, Product product) {
-        Product existingProduct = productRepository.findProductById(id);
-        if (existingProduct != null) {
-            product.setId(id);
-            Product updatedProduct = productRepository.save(product);
-            return productMapper.toResponse(updatedProduct);
-        }
-        return null;
+    public CompletableFuture<ProductResponse> updateProduct(UUID id, Product product) {
+        return CompletableFuture.supplyAsync(() -> {
+            Product existingProduct = productRepository.findProductById(id);
+            if (existingProduct != null) {
+                product.setId(id);
+                Product updatedProduct = productRepository.save(product);
+                return productMapper.toResponse(updatedProduct);
+            }
+            return null;
+        });
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED,
                   isolation = Isolation.READ_COMMITTED,
                   rollbackFor = {Exception.class})
-    public ResponseModel deleteProduct(UUID id) {
-        Product existingProduct = productRepository.findProductById(id);
-        if (existingProduct != null) {
-            existingProduct.setDeletedAt(java.time.LocalDateTime.now());
-            productRepository.save(existingProduct);
-            return new ResponseModel(HttpStatus.OK, "Delete Ok", id);
-        }
-        return new ResponseModel(HttpStatus.BAD_REQUEST, "Delete fail", null);
+    public CompletableFuture<ResponseModel> deleteProduct(UUID id) {
+        return CompletableFuture.supplyAsync(() -> {
+            Product existingProduct = productRepository.findProductById(id);
+            if (existingProduct != null) {
+                existingProduct.setDeletedAt(java.time.LocalDateTime.now());
+                productRepository.save(existingProduct);
+                return new ResponseModel(HttpStatus.OK, "Delete Ok", id);
+            }
+            return new ResponseModel(HttpStatus.BAD_REQUEST, "Delete fail", null);
+        });
     }
 }

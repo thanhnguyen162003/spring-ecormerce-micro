@@ -1,13 +1,11 @@
 package com.app.userservice.Models.Response;
 
 import com.app.userservice.Entities.User;
-import com.app.userservice.Entities.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -20,7 +18,7 @@ public class UserResponse {
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private Set<Role> roles;
+    private String role;
     private boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -33,7 +31,7 @@ public class UserResponse {
             user.getFirstName(),
             user.getLastName(),
             user.getPhoneNumber(),
-            user.getRoles(),
+            user.getRole(),
             user.isActive(),
             user.getCreatedAt(),
             user.getUpdatedAt()

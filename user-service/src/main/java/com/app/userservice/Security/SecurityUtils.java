@@ -7,6 +7,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -31,7 +34,15 @@ public class SecurityUtils {
     }
 
     public Optional<UUID> getCurrentUserId() {
-        return getCurrentUser().map(User::getId);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            try {
+                return Optional.of(UUID.fromString(authentication.getName()));
+            } catch (IllegalArgumentException e) {
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     public Optional<String> getCurrentUserEmail() {
@@ -40,5 +51,14 @@ public class SecurityUtils {
 
     public Optional<String> getCurrentUsername() {
         return getCurrentUser().map(User::getUsername);
+    }
+
+    public Optional<String> getCurrentToken() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return Optional.of(bearerToken.substring(7));
+        }
+        return Optional.empty();
     }
 } 

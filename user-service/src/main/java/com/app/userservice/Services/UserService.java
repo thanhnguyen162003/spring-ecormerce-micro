@@ -1,14 +1,12 @@
 package com.app.userservice.Services;
 
-import com.app.userservice.Common.Mapper.UserMapper;
 import com.app.userservice.Entities.User;
-import com.app.userservice.Models.Response.UserResponse;
 import com.app.userservice.Persistence.Repository.UserRepository;
 import com.app.userservice.Services.Interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +18,13 @@ import java.util.UUID;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    private void validateRole(String role) {
+        if (role == null || (!role.equals("ADMIN") && !role.equals("USER"))) {
+            throw new IllegalArgumentException("Role must be either ADMIN or USER");
+        }
+    }
 
     @Override
     public User createUser(User user) {
@@ -29,6 +34,10 @@ public class UserService implements IUserService {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
+        validateRole(user.getRole());
+        
+        // Encode password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -59,13 +68,26 @@ public class UserService implements IUserService {
             throw new RuntimeException("Username already exists");
         }
 
+        // Validate role if it's being changed
+        if (user.getRole() != null && !user.getRole().equals(existingUser.getRole())) {
+            validateRole(user.getRole());
+        }
+
         // Update fields
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
-        existingUser.setPassword(user.getPassword());
+        
+        // Only encode and update password if it's being changed
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+        
         existingUser.setFirstName(user.getFirstName());
         existingUser.setLastName(user.getLastName());
         existingUser.setPhoneNumber(user.getPhoneNumber());
+        if (user.getRole() != null) {
+            existingUser.setRole(user.getRole());
+        }
         existingUser.setActive(user.isActive());
 
         return userRepository.save(existingUser);

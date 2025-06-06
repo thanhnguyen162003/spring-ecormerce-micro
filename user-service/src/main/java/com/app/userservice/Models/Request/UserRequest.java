@@ -27,4 +27,8 @@ public class UserRequest {
     
     @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number format")
     private String phoneNumber;
+
+    @NotBlank(message = "Role is required")
+    @Pattern(regexp = "^(ADMIN|USER)$", message = "Role must be either ADMIN or USER")
+    private String role;
 } 

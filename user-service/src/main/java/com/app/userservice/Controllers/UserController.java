@@ -2,8 +2,10 @@ package com.app.userservice.Controllers;
 
 import com.app.userservice.Common.Mapper.UserMapper;
 import com.app.userservice.Entities.User;
+import com.app.userservice.Models.Request.UserRequest;
 import com.app.userservice.Models.Response.ApiResponseModel;
 import com.app.userservice.Models.Response.UserResponse;
+import com.app.userservice.Security.JwtTokenUtil;
 import com.app.userservice.Security.SecurityUtils;
 import com.app.userservice.Services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,13 +31,15 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 @Tag(name = "User Controller", description = "APIs for managing users")
 @RequiredArgsConstructor
-public class UserController extends BaseController {
+public class UserController {
     
     private final UserService userService;
     
     private final SecurityUtils securityUtils;
 
     private final UserMapper userMapper;
+    
+    private final JwtTokenUtil jwtTokenUtil;
     
     @Operation(summary = "Create a new user", description = "Creates a new user in the system")
     @ApiResponses(value = {
@@ -46,25 +50,25 @@ public class UserController extends BaseController {
     @PostMapping
     public ResponseEntity<ApiResponseModel<UserResponse>> createUser(
             @Parameter(description = "User object to create", required = true)
-            @RequestBody User user) {
-        User createdUser = userService.createUser(user);
+            @RequestBody UserRequest user) {
+        User newUser = userMapper.toEntity(user);
+        User createdUser = userService.createUser(newUser);
         return new ResponseEntity<>(
                 ApiResponseModel.success("User created successfully", UserResponse.fromEntity(createdUser)),
             HttpStatus.CREATED
         );
     }
     
-    @Operation(summary = "Get current user", description = "Returns the current authenticated user's information")
+    @Operation(summary = "Get current user", description = "Returns the current authenticated user's information from JWT token")
     @GetMapping("/me")
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ApiResponseModel<UserResponse>> getCurrentUser() {
-        return securityUtils.getCurrentUserId()
-                .map(userId -> {
-                    User user = userService.getUserById(userId);
-                    UserResponse userResponse = userMapper.toResponse(user);
-                    return ResponseEntity.ok(new ApiResponseModel<>(true, "User found", userResponse));
+        return securityUtils.getCurrentToken()
+                .map(token -> {
+                    UserResponse userResponse = UserResponse.fromEntity(userService.getUserById(jwtTokenUtil.extractUserId(token)));
+                    return ResponseEntity.ok(new ApiResponseModel<>(true, "User information retrieved from token", userResponse));
                 })
-                .orElse(ResponseEntity.badRequest().body(new ApiResponseModel<>(false, "User not found", null)));
+                .orElse(ResponseEntity.badRequest().body(new ApiResponseModel<>(false, "No valid token found", null)));
     }
     
     @Operation(summary = "Get user by ID", description = "Returns user information by ID")

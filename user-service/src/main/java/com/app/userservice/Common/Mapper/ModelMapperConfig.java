@@ -25,7 +25,7 @@ public class ModelMapperConfig {
                 map().setFirstName(source.getFirstName());
                 map().setLastName(source.getLastName());
                 map().setPhoneNumber(source.getPhoneNumber());
-                map().setRoles(source.getRoles());
+                map().setRole(source.getRole());
                 map().setActive(source.isActive());
                 map().setCreatedAt(source.getCreatedAt());
                 map().setUpdatedAt(source.getUpdatedAt());
@@ -42,9 +42,9 @@ public class ModelMapperConfig {
                 map().setFirstName(source.getFirstName());
                 map().setLastName(source.getLastName());
                 map().setPhoneNumber(source.getPhoneNumber());
+                map().setRole(source.getRole());
                 // Skip mapping fields that are not in the request
                 skip().setId(null);
-                skip().setRoles(null);
                 skip().setActive(false);
                 skip().setCreatedAt(null);
                 skip().setUpdatedAt(null);

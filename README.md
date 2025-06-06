@@ -20,8 +20,8 @@ erp-app/
 
 #### Architecture & Infrastructure
 - [x] Microservices Architecture Setup
-  - [ ] Service Registry (Eureka)
-  - [ ] API Gateway
+  - [x] Service Registry (Eureka)
+  - [x] API Gateway
   - [ ] Config Server
   - [ ] Service-to-Service Communication
   - [ ] Event driven using kafka
@@ -94,19 +94,13 @@ erp-app/
 - [ ] Alerting System
 - [ ] Performance Monitoring
 
-#### Testing
-- [ ] Unit Tests
-- [ ] Integration Tests
-- [ ] E2E Tests
-- [ ] Performance Tests
-
 #### Documentation
 - [ ] API Documentation
   - [x] OpenAPI/Swagger
   - [ ] Postman Collections
 - [ ] Architecture Documentation
 - [ ] Deployment Guide
-- [ ] Development Guide
+- [x] Development Guide
 
 ## Technology Stack
 

@@ -4,13 +4,13 @@ A microservices-based Ecommerce system built with Spring Boot and modern archite
 
 ## Project Structure
 ```
-erp-app/
+ecommerce-app/
 ├── config-server/         # Centralized configuration
-├── gateway-service/       # API Gateway
+├── gateway-service/       # API Gateway(Plan integrate KeyCloak Authen,Author, Distributed Tracing)
 ├── service-registry/      # Service Discovery (Eureka)
-├── user-service/         # User management service
+├── user-service/         # User management service(Auth JWT normal)
 ├── product-service/      # Product management service
-├── order-service/        # Order management service
+├── order-service/        # Order management service (Kafka Listen to your self pattern async processing)(GRPC comunication)
 └── logs/                 # Application logs
 ```
 
@@ -23,9 +23,10 @@ erp-app/
   - [x] Service Registry (Eureka)
   - [x] API Gateway
   - [ ] Config Server
-  - [ ] Service-to-Service Communication
-  - [ ] Event driven using kafka
+  - [x] Service-to-Service Communication
+  - [x] Event driven using kafka
   - [ ] Observability
+  - [ ] Dapr Intergation (Service Comunication, Pub/sub, State Management, Resiliency, Secret, Distributed lock)
 
 #### User Service
 - [x] Basic CRUD Operations
@@ -70,9 +71,11 @@ erp-app/
 - [ ] Centralized Logging
   - [ ] ELK Stack Integration
   - [ ] Log Aggregation
-- [ ] Circuit Breaker Pattern
-  - [ ] Resilience4j Integration
-  - [ ] Fallback Mechanisms
+- [x] Circuit Breaker Pattern
+  - [x] Resilience4j Integration
+  - [x] Fallback Mechanisms
+  - [x] Timeout Mechanisms
+  - [x] Retry Mechanisms
 
 #### Security Enhancements
 - [ ] OAuth2 Implementation
@@ -89,7 +92,7 @@ erp-app/
   - [ ] Event-driven Architecture
 
 #### Monitoring & Operations
-- [ ] Health Checks
+- [x] Health Checks
 - [ ] Metrics Collection
 - [ ] Alerting System
 - [ ] Performance Monitoring
@@ -97,9 +100,9 @@ erp-app/
 #### Documentation
 - [ ] API Documentation
   - [x] OpenAPI/Swagger
-  - [ ] Postman Collections
+  - [x] Postman Collections
 - [ ] Architecture Documentation
-- [ ] Deployment Guide
+- [x] Deployment Guide
 - [x] Development Guide
 
 ## Technology Stack
@@ -128,12 +131,6 @@ erp-app/
 - Docker
 - PostgreSQL
 - MongoDB
-
-### Running the Application
-1. Start the infrastructure services:
-   ```bash
-   docker-compose up -d
-   ```
 
 2. Start the services in order:
    ```bash

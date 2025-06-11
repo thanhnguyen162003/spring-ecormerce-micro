@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.app.productservice.proto";
+
+package product;
+
+service ProductService {
+  rpc GetProduct(GetProductRequest) returns (ProductResponse);
+  rpc ValidateProduct(ValidateProductRequest) returns (ProductValidationResponse);
+}
+
+message GetProductRequest {
+  string product_id = 1;
+}
+
+message ValidateProductRequest {
+  string product_id = 1;
+  int32 quantity = 2;
+}
+
+message ProductResponse {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string slug = 5;
+  string image = 6;
+  string markdown = 7;
+  string created_at = 8;
+}
+
+message ProductValidationResponse {
+  bool is_valid = 1;
+  string message = 2;
+  double price = 3;
+} 

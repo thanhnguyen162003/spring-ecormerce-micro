@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.app.userservice.proto";
+
+package user;
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+  rpc ValidateUser(ValidateUserRequest) returns (UserValidationResponse);
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message ValidateUserRequest {
+  string user_id = 1;
+}
+
+message UserResponse {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  string first_name = 4;
+  string last_name = 5;
+  string phone_number = 6;
+  string role = 7;
+  bool is_active = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message UserValidationResponse {
+  bool is_valid = 1;
+  string message = 2;
+} 

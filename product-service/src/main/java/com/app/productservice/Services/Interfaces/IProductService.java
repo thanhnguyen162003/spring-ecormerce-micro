@@ -17,6 +17,7 @@ public interface IProductService {
     // Read
     List<ProductResponse> getAllProducts();
     ProductResponse getProductById(UUID id);
+    Product getProductEntityById(UUID id);
     Page<ProductResponse> getAllProductsWithPagination(Pageable pageable);
     
     // Update

@@ -46,6 +46,12 @@ public class ProductService implements IProductService {
         Product product = productRepository.findProductById(id);
         return product != null ? productMapper.toResponse(product) : null;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Product getProductEntityById(UUID id) {
+        return productRepository.findProductById(id);
+    }
     
     @Override
     @Transactional(readOnly = true)

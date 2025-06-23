@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: product-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/productdb
+    username: root
+    password: password 

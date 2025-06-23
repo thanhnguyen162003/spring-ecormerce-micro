@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: order-product-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/orderdb
+    username: root
+    password: password 
